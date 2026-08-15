@@ -55,14 +55,17 @@
         }
 
         .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
             gap: 1.5rem;
             width: 100%;
             max-width: 1000px;
         }
 
         .card {
+            flex: 1 1 320px;
+            max-width: 480px;
             background-color: var(--card-bg);
             border-radius: 16px;
             padding: 1.5rem;

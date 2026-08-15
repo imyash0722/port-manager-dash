@@ -10,7 +10,7 @@ app.use(express.json());
 
 // Allowed services
 const services = [
-    { id: 'suwayomi', name: 'Suwayomi Manga Server', port: 4567, systemd: 'suwayomi-server' },
+    { id: 'suwayomi', name: 'Suwayomi Server', port: 4567, systemd: 'suwayomi-server' },
     { id: 'sshd', name: 'Secure Shell (SSH)', port: 22, systemd: 'sshd' }
 ];
 

@@ -211,18 +211,18 @@
                 card.innerHTML = `
                     <div class="card-header">
                         <div class="service-info">
-                            ${isOnline ? \`<a href="http://\${window.location.hostname}:\${s.port}" target="_blank" class="service-link"><h2>\${s.name}</h2></a>\` : \`<h2>\${s.name}</h2>\`}
-                            <p>\${s.systemd}.service</p>
+                            ${isOnline ? `<a href="http://${window.location.hostname}:${s.port}" target="_blank" class="service-link"><h2>${s.name}</h2></a>` : `<h2>${s.name}</h2>`}
+                            <p>${s.systemd}.service</p>
                         </div>
-                        <div class="status-badge \${s.status}">\${s.status}</div>
+                        <div class="status-badge ${s.status}">${s.status}</div>
                     </div>
                     <div class="card-footer">
-                        <div class="port">Port \${s.port}</div>
+                        <div class="port">Port ${s.port}</div>
                         <button 
-                            class="btn \${isOnline ? 'stop' : 'start'}" 
-                            onclick="toggleService('\${s.id}', '\${isOnline ? 'stop' : 'start'}', this)"
+                            class="btn ${isOnline ? 'stop' : 'start'}" 
+                            onclick="toggleService('${s.id}', '${isOnline ? 'stop' : 'start'}', this)"
                         >
-                            \${isOnline ? 'Stop Service' : 'Start Service'}
+                            ${isOnline ? 'Stop Service' : 'Start Service'}
                         </button>
                     </div>
                 `;
@@ -236,7 +236,7 @@
             btnElement.disabled = true;
 
             try {
-                const res = await fetch(\`/api/services/\${id}/toggle\`, {
+                const res = await fetch(`/api/services/${id}/toggle`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ action })

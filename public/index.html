@@ -214,7 +214,7 @@
                 card.innerHTML = `
                     <div class="card-header">
                         <div class="service-info">
-                            ${isOnline ? `<a href="http://${window.location.hostname}:${s.port}" target="_blank" class="service-link"><h2>${s.name}</h2></a>` : `<h2>${s.name}</h2>`}
+                            ${(isOnline && s.id === 'suwayomi') ? `<a href="http://${window.location.hostname}:${s.port}" target="_blank" class="service-link"><h2>${s.name}</h2></a>` : `<h2>${s.name}</h2>`}
                             <p>${s.systemd}.service</p>
                         </div>
                         <div class="status-badge ${s.status}">${s.status}</div>

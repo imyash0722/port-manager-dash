@@ -11,7 +11,8 @@ app.use(express.json());
 // Allowed services
 const services = [
     { id: 'suwayomi', name: 'Suwayomi Server', port: 4567, systemd: 'suwayomi-server' },
-    { id: 'sshd', name: 'Secure Shell (SSH)', port: 22, systemd: 'sshd' }
+    { id: 'sshd', name: 'Secure Shell (SSH)', port: 22, systemd: 'sshd' },
+    { id: 'tor', name: 'Tor Proxy Network', port: 9050, systemd: 'tor' }
 ];
 
 app.get('/api/services', (req, res) => {

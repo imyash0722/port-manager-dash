@@ -1,0 +1,12 @@
+[Unit]
+Description=Port Manager Custom Dashboard
+After=network.target
+
+[Service]
+User=root
+WorkingDirectory=/mnt/shared/stuff/projects/port-manager-dash
+ExecStart=/usr/bin/node server.js
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

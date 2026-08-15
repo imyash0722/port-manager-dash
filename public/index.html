@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server Dashboard</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+
+        :root {
+            --bg-color: hsl(230, 15%, 10%);
+            --card-bg: hsl(230, 15%, 15%);
+            --card-hover: hsl(230, 15%, 18%);
+            --text-main: hsl(0, 0%, 95%);
+            --text-muted: hsl(230, 10%, 70%);
+            --primary: hsl(220, 80%, 65%);
+            --online: hsl(140, 60%, 55%);
+            --online-bg: hsl(140, 60%, 55%, 0.1);
+            --offline: hsl(0, 60%, 60%);
+            --offline-bg: hsl(0, 60%, 60%, 0.1);
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 4rem 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.5rem;
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            transition: transform 0.2s ease, background-color 0.2s ease;
+            border: 1px solid hsl(230, 15%, 20%);
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            background-color: var(--card-hover);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .service-info h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .service-info p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .status-badge {
+            padding: 0.4rem 0.8rem;
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .status-badge.online {
+            background-color: var(--online-bg);
+            color: var(--online);
+        }
+
+        .status-badge.offline {
+            background-color: var(--offline-bg);
+            color: var(--offline);
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+            padding-top: 1.5rem;
+            border-top: 1px solid hsl(230, 15%, 20%);
+        }
+
+        .port {
+            font-family: monospace;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            background: hsl(230, 15%, 10%);
+            padding: 0.3rem 0.6rem;
+            border-radius: 6px;
+        }
+
+        .btn {
+            appearance: none;
+            border: none;
+            border-radius: 8px;
+            padding: 0.6rem 1.2rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn.start {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .btn.start:hover {
+            filter: brightness(1.1);
+        }
+
+        .btn.stop {
+            background-color: transparent;
+            border: 1px solid hsl(0, 60%, 40%);
+            color: var(--text-main);
+        }
+
+        .btn.stop:hover {
+            background-color: hsl(0, 60%, 40%, 0.1);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        
+        a.service-link {
+            color: inherit;
+            text-decoration: none;
+        }
+        
+        a.service-link:hover h2 {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Server Dashboard</h1>
+        <p>Manage your Tailscale hosted services.</p>
+    </div>
+
+    <div class="grid" id="services-container">
+        <!-- populated by js -->
+    </div>
+
+    <script>
+        const container = document.getElementById('services-container');
+
+        async function fetchServices() {
+            try {
+                const res = await fetch('/api/services');
+                const data = await res.json();
+                renderServices(data);
+            } catch (err) {
+                console.error("Failed to load services", err);
+            }
+        }
+
+        function renderServices(services) {
+            container.innerHTML = '';
+            services.forEach(s => {
+                const isOnline = s.status === 'online';
+                
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <div class="card-header">
+                        <div class="service-info">
+                            ${isOnline ? \`<a href="http://\${window.location.hostname}:\${s.port}" target="_blank" class="service-link"><h2>\${s.name}</h2></a>\` : \`<h2>\${s.name}</h2>\`}
+                            <p>\${s.systemd}.service</p>
+                        </div>
+                        <div class="status-badge \${s.status}">\${s.status}</div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="port">Port \${s.port}</div>
+                        <button 
+                            class="btn \${isOnline ? 'stop' : 'start'}" 
+                            onclick="toggleService('\${s.id}', '\${isOnline ? 'stop' : 'start'}', this)"
+                        >
+                            \${isOnline ? 'Stop Service' : 'Start Service'}
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        async function toggleService(id, action, btnElement) {
+            const originalText = btnElement.innerText;
+            btnElement.innerText = 'Working...';
+            btnElement.disabled = true;
+
+            try {
+                const res = await fetch(\`/api/services/\${id}/toggle\`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action })
+                });
+                
+                if (!res.ok) {
+                    throw new Error(await res.text());
+                }
+                
+                setTimeout(fetchServices, 1000);
+            } catch (err) {
+                alert("Failed to " + action + " service: " + err.message);
+                btnElement.innerText = originalText;
+                btnElement.disabled = false;
+            }
+        }
+
+        fetchServices();
+        setInterval(fetchServices, 5000);
+    </script>
+</body>
+</html>

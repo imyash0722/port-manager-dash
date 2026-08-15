@@ -1,0 +1,9 @@
+{
+  "name": "server-dashboard",
+  "version": "1.0.0",
+  "description": "Simple tailscale homepage",
+  "main": "server.js",
+  "dependencies": {
+    "express": "^4.22.2"
+  }
+}

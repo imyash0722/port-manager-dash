@@ -15,15 +15,25 @@ const services = [
     { id: 'tor', name: 'Tor Proxy Network', port: 9050, systemd: 'tor' }
 ];
 
-app.get('/api/services', (req, res) => {
+app.get('/api/services', async (req, res) => {
     // get status for all services
     const promises = services.map(s => {
         return new Promise((resolve) => {
             exec(`systemctl is-active ${s.systemd}`, (error, stdout, stderr) => {
-                resolve({
+                let statusObj = {
                     ...s,
                     status: stdout.trim() === 'active' ? 'online' : 'offline'
-                });
+                };
+                
+                // If it's suwayomi, check if Tor proxy is enabled in its config
+                if (s.id === 'suwayomi') {
+                    exec(`grep -q 'server.socksProxyEnabled = true' /var/lib/suwayomi/server.conf`, (grepErr) => {
+                        statusObj.torProxyEnabled = !grepErr; // 0 exit code means true
+                        resolve(statusObj);
+                    });
+                } else {
+                    resolve(statusObj);
+                }
             });
         });
     });
@@ -39,6 +49,20 @@ app.post('/api/services/:id/toggle', (req, res) => {
 
     // Run systemctl command
     exec(`systemctl ${action} ${service.systemd}`, (error, stdout, stderr) => {
+        if (error) {
+            return res.status(500).json({ success: false, error: stderr || stdout });
+        }
+        res.json({ success: true });
+    });
+});
+
+app.post('/api/suwayomi/tor', (req, res) => {
+    const enable = req.body.enable; // true or false
+    const search = enable ? 'server.socksProxyEnabled = false' : 'server.socksProxyEnabled = true';
+    const replace = enable ? 'server.socksProxyEnabled = true' : 'server.socksProxyEnabled = false';
+    
+    // Replace the config value and restart the service
+    exec(`sed -i 's/${search}/${replace}/' /var/lib/suwayomi/server.conf && systemctl restart suwayomi-server`, (error, stdout, stderr) => {
         if (error) {
             return res.status(500).json({ success: false, error: stderr || stdout });
         }

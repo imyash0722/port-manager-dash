@@ -254,41 +254,41 @@
                 const isTorEnabled = isSuwayomi ? s.torProxyEnabled : false;
                 
                 const card = document.createElement('div');
-                card.className = \`card \${isSuwayomi && isOnline && isTorEnabled ? 'tor-mode' : ''}\`;
+                card.className = `card ${isSuwayomi && isOnline && isTorEnabled ? 'tor-mode' : ''}`;
                 
                 let torButtonHTML = '';
                 if (isSuwayomi && isOnline) {
-                    torButtonHTML = \`
+                    torButtonHTML = `
                         <button 
-                            class="btn tor-toggle \${isTorEnabled ? 'active' : ''}" 
-                            onclick="toggleTorProxy(\${!isTorEnabled}, this)"
+                            class="btn tor-toggle ${isTorEnabled ? 'active' : ''}" 
+                            onclick="toggleTorProxy(${!isTorEnabled}, this)"
                         >
-                            Tor Proxy: \${isTorEnabled ? 'ON' : 'OFF'}
+                            Tor Proxy: ${isTorEnabled ? 'ON' : 'OFF'}
                         </button>
-                    \`;
+                    `;
                 }
 
-                card.innerHTML = \`
+                card.innerHTML = `
                     <div class="card-header">
                         <div class="service-info">
-                            \${(isOnline && isSuwayomi) ? \`<a href="http://\${window.location.hostname}:\${s.port}" target="_blank" class="service-link"><h2>\${s.name}</h2></a>\` : \`<h2>\${s.name}</h2>\`}
-                            <p>\${s.systemd}.service</p>
+                            ${(isOnline && isSuwayomi) ? `<a href="http://${window.location.hostname}:${s.port}" target="_blank" class="service-link"><h2>${s.name}</h2></a>` : `<h2>${s.name}</h2>`}
+                            <p>${s.systemd}.service</p>
                         </div>
-                        <div class="status-badge \${s.status}">\${s.status}</div>
+                        <div class="status-badge ${s.status}">${s.status}</div>
                     </div>
                     <div class="card-footer">
-                        <div class="port">Port \${s.port}</div>
+                        <div class="port">Port ${s.port}</div>
                         <div class="actions">
-                            \${torButtonHTML}
+                            ${torButtonHTML}
                             <button 
-                                class="btn \${isOnline ? 'stop' : 'start'}" 
-                                onclick="toggleService('\${s.id}', '\${isOnline ? 'stop' : 'start'}', this)"
+                                class="btn ${isOnline ? 'stop' : 'start'}" 
+                                onclick="toggleService('${s.id}', '${isOnline ? 'stop' : 'start'}', this)"
                             >
-                                \${isOnline ? 'Stop' : 'Start Service'}
+                                ${isOnline ? 'Stop' : 'Start Service'}
                             </button>
                         </div>
                     </div>
-                \`;
+                `;
                 container.appendChild(card);
             });
         }
@@ -299,7 +299,7 @@
             btnElement.disabled = true;
 
             try {
-                const res = await fetch(\`/api/services/\${id}/toggle\`, {
+                const res = await fetch(`/api/services/${id}/toggle`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ action })

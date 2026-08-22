@@ -16,16 +16,18 @@ sudo pacman -S --needed --noconfirm base-devel git nodejs npm rustup
 
 if ! command -v paru &> /dev/null && ! command -v yay &> /dev/null; then
     echo "  -> No AUR helper detected."
-    read -p "? Do you want to install paru (p), yay (y), or skip (s)? [p/y/s]: " aur_resp
-    if [[ "$aur_resp" == [pP]* ]]; then
-        echo "  -> Building paru from source..."
-        rustup default stable
-        git clone https://aur.archlinux.org/paru.git /tmp/paru
-        cd /tmp/paru && makepkg -si --noconfirm && cd - && rm -rf /tmp/paru
-    elif [[ "$aur_resp" == [yY]* ]]; then
+    read -p "? Do you want to install paru (P), yay (y), or skip (s)? [P/y/s]: " aur_resp
+    if [[ "$aur_resp" == [yY]* ]]; then
         echo "  -> Building yay from source..."
         git clone https://aur.archlinux.org/yay.git /tmp/yay
         cd /tmp/yay && makepkg -si --noconfirm && cd - && rm -rf /tmp/yay
+    elif [[ "$aur_resp" == [sS]* ]]; then
+        echo "  -> Skipping AUR helper installation."
+    else
+        echo "  -> Defaulting to paru. Building from source..."
+        rustup default stable
+        git clone https://aur.archlinux.org/paru.git /tmp/paru
+        cd /tmp/paru && makepkg -si --noconfirm && cd - && rm -rf /tmp/paru
     fi
 fi
 

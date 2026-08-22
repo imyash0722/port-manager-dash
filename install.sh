@@ -11,17 +11,22 @@ if [[ $EUID -eq 0 ]]; then
 fi
 
 echo ""
-echo "[1/5] Installing core dependencies (Node.js, npm, paru)..."
+echo "[1/5] Installing core dependencies (Node.js, npm, AUR helper)..."
 sudo pacman -S --needed --noconfirm base-devel git nodejs npm rustup
 
-if ! command -v paru &> /dev/null; then
-    echo "  -> Building paru (AUR helper) from source..."
-    rustup default stable
-    git clone https://aur.archlinux.org/paru.git /tmp/paru
-    cd /tmp/paru
-    makepkg -si --noconfirm
-    cd -
-    rm -rf /tmp/paru
+if ! command -v paru &> /dev/null && ! command -v yay &> /dev/null; then
+    echo "  -> No AUR helper detected."
+    read -p "? Do you want to install paru (p), yay (y), or skip (s)? [p/y/s]: " aur_resp
+    if [[ "$aur_resp" == [pP]* ]]; then
+        echo "  -> Building paru from source..."
+        rustup default stable
+        git clone https://aur.archlinux.org/paru.git /tmp/paru
+        cd /tmp/paru && makepkg -si --noconfirm && cd - && rm -rf /tmp/paru
+    elif [[ "$aur_resp" == [yY]* ]]; then
+        echo "  -> Building yay from source..."
+        git clone https://aur.archlinux.org/yay.git /tmp/yay
+        cd /tmp/yay && makepkg -si --noconfirm && cd - && rm -rf /tmp/yay
+    fi
 fi
 
 echo ""
